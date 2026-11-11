@@ -1,5 +1,5 @@
 /* Service worker: guarda la app para jugar sin conexión */
-var CACHE = 'quinteto-v1';
+var CACHE = 'quinteto-v2';
 var FILES = ['./', 'index.html', 'css/style.css', 'js/app.js', 'js/descifra.js', 'js/bloques.js',
   'js/parchis.js', 'js/reversi.js', 'js/desliza.js', 'manifest.webmanifest',
   'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png'];

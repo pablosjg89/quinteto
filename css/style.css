@@ -286,10 +286,18 @@ button { font: inherit; color: inherit; }
   .home-head h1 { font-size: 34px; }
 }
 
-.dc-controls {
-  position: sticky; bottom: 0; z-index: 4;
-  margin: 10px -16px 0; padding: 4px 16px calc(var(--safe-b) + 10px);
-  background: linear-gradient(to bottom, rgba(15,18,38,0), var(--bg) 18px);
-}
-.dc-controls .dc-palette { margin-top: 10px; }
-.dc-row { padding: 4px 10px; }
+.dc-controls { flex: none; padding-top: 6px; }
+.dc-controls .dc-palette { margin: 8px auto 10px; }
+.dc-row { padding: 3px 10px; flex: none; }
+.dc-row .num, .dc-slot, .dc-fb { flex: none; }
+
+/* Partida encajada en la pantalla: el tablero se desplaza por dentro */
+.dc-juego { display: flex; flex-direction: column; }
+.dc-juego .status { flex: none; margin: 0 0 6px; }
+.dc-juego .dc-secret { flex: none; padding: 6px; margin-bottom: 8px; }
+.dc-juego .dc-board { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  gap: 5px; padding: 2px 0 4px; }
+.dc-palette .dc-color { width: var(--col, 46px); height: var(--col, 46px); }
+.dc-palette { flex-wrap: nowrap; gap: 8px; max-width: none; }
+.dc-legend { flex-wrap: wrap; gap: 6px 14px; font-size: 12px; margin-top: 0; }
+.dc-legend span { white-space: nowrap; }

@@ -49,6 +49,11 @@
     mode = '1p';
     build();
   }
+  var rzT = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(rzT);
+    rzT = setTimeout(function () { if (st && st.area && st.area.className === 'dc-juego' && st.area.isConnected) render(); }, 150);
+  });
 
   function build() {
     root.innerHTML = '';
@@ -89,10 +94,13 @@
   function render() {
     var cfg = st.cfg, a = st.area;
     a.innerHTML = '';
+    a.className = 'dc-juego';
     a.appendChild(Q.el('div', { class: 'status' },
       (st.label ? st.label + ' · ' : '') + 'Intento ' + Math.min(st.rows.length + (st.over ? 0 : 1), cfg.tries) + ' de ' + cfg.tries));
-    var pegSize = Math.min(34, Math.floor((Math.min(window.innerWidth, 520) - 120) / cfg.len) - 6);
-    a.style.setProperty('--peg', pegSize + 'px');
+    // Tamaño de las bolas según el ancho (fila = margen 20 + número 18 + huecos 20 + pistas 36 + borde 2)
+    var ancho = Math.min(root.clientWidth || window.innerWidth, 560) - 32;
+    var pegW = Math.floor((ancho - 96 - (cfg.len - 1) * 6) / cfg.len);
+    a.style.setProperty('--peg', Math.max(24, Math.min(34, pegW)) + 'px');
 
     // Código secreto (oculto hasta terminar)
     var sec = Q.el('div', { class: 'dc-secret' });
@@ -120,15 +128,19 @@
       }
       board.appendChild(Q.el('div', { class: 'dc-row' + (isCur ? ' current' : '') },
         Q.el('span', { class: 'num', text: String(r + 1) }), slots, fb));
-      // Mostrar solo filas jugadas + actual + 1 vacía si hay muchas
-      if (!row && !isCur && r > st.rows.length + 1 && cfg.tries > 9) break;
     }
     a.appendChild(board);
 
     if (!st.over) {
       var ctl = Q.el('div', { class: 'dc-controls' });
       a.appendChild(ctl);
+      ctl.appendChild(Q.el('div', { class: 'dc-legend' },
+        Q.el('span', null, Q.el('i', { style: { background: 'var(--good)' } }), 'en su sitio'),
+        Q.el('span', null, Q.el('i', { style: { background: '#fff' } }), 'en otra posición'),
+        Q.el('span', null, cfg.dup ? 'Se repiten colores' : 'Sin repetir colores')));
       var pal = Q.el('div', { class: 'dc-palette' });
+      var lado = Math.max(30, Math.min(46, Math.floor((ancho - (cfg.colors - 1) * 8) / cfg.colors)));
+      pal.style.setProperty('--col', lado + 'px');
       for (var k = 0; k < cfg.colors; k++) (function (k) {
         var b = Q.el('button', { class: 'dc-color led', 'aria-label': 'Color ' + (k + 1) });
         b.style.background = COLORS[k]; b.style.setProperty('--glow', GLOW[k] + '88');
@@ -140,11 +152,27 @@
       ctl.appendChild(Q.el('div', { class: 'row center' },
         Q.el('button', { class: 'btn', onclick: function () { st.cur = []; render(); } }, 'Borrar'),
         Q.el('button', { class: 'btn primary', disabled: !full, onclick: submit }, 'Comprobar')));
-      ctl.appendChild(Q.el('div', { class: 'dc-legend' },
-        Q.el('span', null, Q.el('i', { style: { background: 'var(--good)' } }), 'en su sitio'),
-        Q.el('span', null, Q.el('i', { style: { background: '#fff' } }), 'en otra posición'),
-        cfg.dup ? Q.el('span', null, 'Se pueden repetir colores') : Q.el('span', null, 'Sin repetir colores')));
     }
+    ajustar(board);
+  }
+
+  /* Encaja la partida en la pantalla: todas las filas caben o se desplazan
+     dentro del tablero, y los controles nunca tapan ninguna fila */
+  function ajustar(board) {
+    var a = st.area;
+    a.style.height = '';
+    var top = a.getBoundingClientRect().top + (window.scrollY || 0);
+    var padB = parseFloat(getComputedStyle(root).paddingBottom) || 0;
+    a.style.height = Math.max(360, Math.floor(window.innerHeight - top - padB)) + 'px';
+    // Si sobra altura, no hace falta encoger; si falta, bolas algo más pequeñas (mínimo 28 px) y el tablero se desplaza
+    var fila = board.firstChild ? board.firstChild.offsetHeight + 5 : 0;
+    if (fila) {
+      var pegAct = parseFloat(a.style.getPropertyValue('--peg')) || 34;
+      var cabe = Math.floor(board.clientHeight / st.cfg.tries) - (fila - pegAct);
+      if (cabe < pegAct) a.style.setProperty('--peg', Math.max(28, cabe) + 'px');
+    }
+    var cur = board.querySelector('.current') || board.children[Math.max(0, st.rows.length - 1)];
+    if (cur) board.scrollTop = Math.max(0, cur.offsetTop - board.offsetTop - board.clientHeight + cur.offsetHeight + 8);
   }
 
   function countFilled() { var n = 0; for (var i = 0; i < st.cfg.len; i++) if (st.cur[i] != null) n++; return n; }
@@ -191,6 +219,8 @@
     var a = st.area;
     function draw() {
       a.innerHTML = '';
+      a.className = '';
+      a.style.height = '';
       a.appendChild(Q.el('div', { class: 'status', text: 'Jugador ' + maker + ': crea el código secreto. ¡Que no mire el jugador ' + breaker + '!' }));
       var sec = Q.el('div', { class: 'dc-secret' });
       a.style.setProperty('--peg', '44px');
