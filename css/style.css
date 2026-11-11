@@ -167,8 +167,8 @@ button { font: inherit; color: inherit; }
   background: #0a0c1e; border: 2px solid #2b3166; cursor: pointer;
 }
 .dc-slot.filled { border-color: transparent; }
-.dc-fb { display: grid; grid-template-columns: repeat(3, 10px); gap: 3px; width: 36px; }
-.dc-fb i { width: 10px; height: 10px; border-radius: 50%; background: #2b3166; display: block; }
+.dc-fb { display: flex; gap: 3px; align-items: center; }
+.dc-fb i { width: 9px; height: 9px; border-radius: 50%; background: #2b3166; display: block; flex: none; }
 .dc-fb i.hit { background: var(--good); box-shadow: 0 0 6px var(--good); }
 .dc-fb i.near { background: #fff; box-shadow: 0 0 6px #fff; }
 .dc-palette {

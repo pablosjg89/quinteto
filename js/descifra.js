@@ -97,10 +97,11 @@
     a.className = 'dc-juego';
     a.appendChild(Q.el('div', { class: 'status' },
       (st.label ? st.label + ' · ' : '') + 'Intento ' + Math.min(st.rows.length + (st.over ? 0 : 1), cfg.tries) + ' de ' + cfg.tries));
-    // Tamaño de las bolas según el ancho (fila = margen 20 + número 18 + huecos 20 + pistas 36 + borde 2)
+    // Tamaño de las bolas según el ancho (fila = margen 20 + número 18 + huecos 20 + borde 2 + pistas en línea)
     var ancho = Math.min(root.clientWidth || window.innerWidth, 560) - 32;
-    var pegW = Math.floor((ancho - 96 - (cfg.len - 1) * 6) / cfg.len);
-    a.style.setProperty('--peg', Math.max(24, Math.min(34, pegW)) + 'px');
+    var pistas = cfg.len * 9 + (cfg.len - 1) * 3;
+    var pegW = Math.floor((ancho - 60 - pistas - (cfg.len - 1) * 6) / cfg.len);
+    a.style.setProperty('--peg', Math.max(20, Math.min(34, pegW)) + 'px');
 
     // Código secreto (oculto hasta terminar)
     var sec = Q.el('div', { class: 'dc-secret' });
@@ -120,7 +121,7 @@
         if (isCur) (function (idx) { p.onclick = function () { if (st.cur[idx] != null) { st.cur[idx] = null; render(); } }; })(i);
         slots.appendChild(p);
       }
-      var fb = Q.el('div', { class: 'dc-fb', style: { gridTemplateColumns: 'repeat(' + Math.ceil(cfg.len / 2) + ', 10px)' } });
+      var fb = Q.el('div', { class: 'dc-fb' });
       for (var f = 0; f < cfg.len; f++) {
         var cls = '';
         if (row) cls = f < row.res.hit ? 'hit' : (f < row.res.hit + row.res.near ? 'near' : '');
@@ -169,7 +170,7 @@
     if (fila) {
       var pegAct = parseFloat(a.style.getPropertyValue('--peg')) || 34;
       var cabe = Math.floor(board.clientHeight / st.cfg.tries) - (fila - pegAct);
-      if (cabe < pegAct) a.style.setProperty('--peg', Math.max(28, cabe) + 'px');
+      if (cabe < pegAct) a.style.setProperty('--peg', Math.min(pegAct, Math.max(28, cabe)) + 'px');
     }
     var cur = board.querySelector('.current') || board.children[Math.max(0, st.rows.length - 1)];
     if (cur) board.scrollTop = Math.max(0, cur.offsetTop - board.offsetTop - board.clientHeight + cur.offsetHeight + 8);
